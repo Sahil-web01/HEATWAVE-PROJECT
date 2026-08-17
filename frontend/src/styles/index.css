@@ -47,14 +47,15 @@ body {
   letter-spacing: -0.02em;
 }
 
-/* Glassmorphism Card System */
+/* Glassmorphism Card System — GPU-optimized (no backdrop-filter blur during scroll) */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(14, 19, 31, 0.82);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border-radius: 1rem;
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  will-change: transform;
+  transform: translateZ(0);
+  contain: paint;
 }
 
 /* Form Controls (Uniform heights, borders, and fonts across all forms) */

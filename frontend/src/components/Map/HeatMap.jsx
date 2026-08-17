@@ -198,6 +198,7 @@ function HeatMap() {
       <MapContainer
         center={[26.9124, 75.7873]} // Jaipur center
         zoom={12}
+        scrollWheelZoom={true}
         className="h-full w-full rounded-[var(--radius-panel)]"
         style={{ width: '100%', height: '100%', minHeight: '560px', background: '#0B0E14' }}
         zoomControl={true}
@@ -209,10 +210,7 @@ function HeatMap() {
           className="map-tiles"
         />
         
-        {/* High contrast tile filter ensuring city & street labels are bright and clear */}
-        <style>{`
-          .map-tiles { filter: brightness(1.2) contrast(1.15); }
-        `}</style>
+
 
         <MapController flyTarget={flyTarget} />
 

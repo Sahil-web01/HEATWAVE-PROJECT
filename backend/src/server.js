@@ -55,15 +55,24 @@ const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/urban_heat
 
 const startServer = async () => {
   try {
-    await mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 5000 });
-    console.log("MongoDB Connected successfully");
+    console.log(`Connecting to MongoDB URI: ${MONGO_URI.substring(0, 30)}...`);
+    await mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 4000 });
+    console.log("✅ MongoDB Connected successfully");
     startWatcher();
   } catch (err) {
-    console.error("MongoDB Connection Error:", err.message);
+    console.warn("⚠️ Primary MongoDB Atlas connection timed out/failed:", err.message);
+    try {
+      console.log("🔄 Attempting fallback connection to local MongoDB (127.0.0.1:27017)...");
+      await mongoose.connect("mongodb://127.0.0.1:27017/urban_heatwave", { serverSelectionTimeoutMS: 3000 });
+      console.log("✅ Connected successfully to Local MongoDB fallback!");
+      startWatcher();
+    } catch (localErr) {
+      console.error("❌ Both Atlas and Local MongoDB connections failed:", localErr.message);
+    }
   }
 
   app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
   });
 };
 

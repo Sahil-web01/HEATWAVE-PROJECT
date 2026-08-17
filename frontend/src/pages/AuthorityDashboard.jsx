@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import HeatMap from '../components/Map/HeatMap';
 import SimulationToggle from '../components/SimulationToggle/SimulationToggle';
 import Dashboard from '../components/Dashboard/Dashboard';
@@ -11,16 +11,21 @@ import { useApp } from '../context/AppContext';
 import { MapPin, Thermometer, ShieldAlert, Users, CheckCircle2, AlertTriangle, MessageSquareWarning } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area } from 'recharts';
 
-// Simple mock sparkline data for the 24h trend
-const getMockSparkline = (baseTemp) => {
-  return Array.from({ length: 12 }, (_, i) => ({
+// Stable sparkline generator (seeded by baseTemp to avoid re-render thrash)
+const buildSparkline = (baseTemp) =>
+  Array.from({ length: 12 }, (_, i) => ({
     time: i,
-    temp: baseTemp + Math.sin(i / 2) * 5 + (Math.random() * 2 - 1)
+    temp: baseTemp + Math.sin(i / 2) * 5 + (i % 3 - 1)
   }));
-};
 
 function AuthorityDashboard() {
   const { selectedWard } = useApp();
+
+  // Memoize sparkline so it only recomputes when the base temperature changes
+  const sparklineData = useMemo(
+    () => buildSparkline(selectedWard?.latestRisk?.forecastTempC || 35),
+    [selectedWard?.latestRisk?.forecastTempC]
+  );
 
   return (
     <div className="w-full max-w-[1600px] mx-auto p-4 md:p-6 lg:p-8 flex flex-col gap-5 md:gap-8 font-sans">
@@ -92,7 +97,7 @@ function AuthorityDashboard() {
                   <div className="text-xs text-gray-400 mb-2 font-bold uppercase tracking-wider">24h Temperature Trend</div>
                   <div className="h-16 w-full opacity-80">
                     <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={getMockSparkline(selectedWard.latestRisk?.forecastTempC || 35)}>
+                      <AreaChart data={sparklineData}>
                         <defs>
                           <linearGradient id="colorTemp" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor={selectedWard.latestRisk?.riskTier === 'Extreme' ? '#EF4444' : '#FB7A3C'} stopOpacity={0.4}/>
